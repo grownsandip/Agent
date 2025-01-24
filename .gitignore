@@ -1,0 +1,14 @@
+# Ignore Python bytecode files
+__pycache__/
+
+# Ignore image files
+image/
+
+# Ignore environment variables file
+.env
+
+# Ignore text document
+doc.txt
+
+# Ignore specific image file
+xyz.png
