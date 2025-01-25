@@ -14,6 +14,8 @@ def scroll_to_bottom():
 
 if "messages" not in st.session_state:
     st.session_state.messages=[]
+if "uploaded_files" not in st.session_state:
+    st.session_state.uploaded_files = {"images": [], "pdfs": []}
 def chat_section():
     st.header("Chat with Agent and get your files")
     for message in st.session_state["messages"]:
@@ -50,14 +52,34 @@ def upload_sections():
          image=Image.open(uploaded_image)
          width,height=image.size
          File_preview.image(image,caption=f"{width} X {height}")
+         st.session_state.uploaded_files["images"].append({
+            "file": uploaded_image,
+            "name": uploaded_image.name,
+            "size": uploaded_image.size,
+            "width":width,
+            "height":height
+        })
     uploaded_pdf = st.file_uploader("Upload PDF", type=["pdf"])
     if uploaded_pdf is not None:
          st.write(uploaded_pdf.size)
+         st.session_state.uploaded_files["pdfs"].append({
+            "file": uploaded_pdf,
+            "name": uploaded_pdf.name,
+            "size": uploaded_pdf.size
+        })
+def get_file_details():
+    uploades=st.session_state.uploaded_files
+    st.write(uploades["images"])
+    st.write(uploades["pdfs"])
+
+        
 def main():
      chat_section()
      prompt_section()
      with st.sidebar:
          upload_sections()
+if st:
+      get_file_details()
 
     
 if __name__=="__main__":
