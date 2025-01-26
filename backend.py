@@ -55,7 +55,7 @@ def get_response(prompt):
                 "content":functionResponse,
                 "tool_call_id":tool.id
             })
-        second_response = client.chat.completions.create(
+    second_response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=messages,
     )

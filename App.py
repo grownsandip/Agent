@@ -1,6 +1,7 @@
 import streamlit as st
 from backend import get_response
 from PIL import Image
+import json
 
 
 
@@ -47,6 +48,10 @@ def prompt_section():
     
 def upload_sections():
     File_preview=st.empty()
+    if "images" in st.session_state.uploaded_files:
+        st.session_state.uploaded_files["images"].clear()
+    if "pdfs" in st.session_state.uploaded_files:
+        st.session_state.uploaded_files["pdfs"].clear()
     uploaded_image = st.file_uploader("Upload Image", type=["jpg", "jpeg", "png"])
     if uploaded_image is not None:
          image=Image.open(uploaded_image)
@@ -67,10 +72,37 @@ def upload_sections():
             "name": uploaded_pdf.name,
             "size": uploaded_pdf.size
         })
-def get_file_details():
-    uploades=st.session_state.uploaded_files
-    st.write(uploades["images"])
-    st.write(uploades["pdfs"])
+def collect_file_details():
+    if st.session_state.uploaded_files["images"] or st.session_state.uploaded_files["pdfs"]:
+        file_details = {
+            "images": [
+                {
+                    "name": img["name"],
+                    "size": img["size"],
+                    "width": img["width"],
+                    "height": img["height"]
+                } for img in st.session_state.uploaded_files["images"]
+            ],
+            "pdfs": [
+                {
+                    "name": pdf["name"],
+                    "size": pdf["size"]
+                } for pdf in st.session_state.uploaded_files["pdfs"]
+            ]
+        }
+
+        # Convert file details to a JSON string
+        file_details_json = json.dumps(file_details, indent=2)
+
+        # Display file details
+        #st.write("Uploaded Files:")
+        #st.json(file_details_json)
+
+        # Pass file detail
+        return file_details_json
+    else:
+        st.write("No files uploaded.")
+        return None
 
         
 def main():
@@ -78,8 +110,16 @@ def main():
      prompt_section()
      with st.sidebar:
          upload_sections()
-if st:
-      get_file_details()
+         if st.button("Send Files to agent",use_container_width=True):
+             file_details_json = collect_file_details()
+             if file_details_json:
+                # Create a prompt to send the file details
+                prompt = f"The user has uploaded the following files:\n{file_details_json}\nProcess these files and provide a response."
+                # Call get_response with the prompt
+                response_generator = get_response(prompt)
+                st.session_state["messages"].append({"role": "agent", "content": response_generator})
+                #for response_chunk in response_generator:
+                   # st.write(response_chunk)
 
     
 if __name__=="__main__":
