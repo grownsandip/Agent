@@ -3,7 +3,8 @@ __pycache__/
 
 # Ignore image files
 image/
-
+generated/
+images/
 # Ignore environment variables file
 .env
 
@@ -12,3 +13,5 @@ doc.txt
 
 # Ignore specific image file
 xyz.png
+prescription.jpg
+prescription_2.jpg
