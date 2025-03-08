@@ -34,25 +34,30 @@ def record_audio(file_path, timeout=20, phrase_time_limit=None):
             audio_segment.export(file_path, format="mp3", bitrate="128k")
             
             logging.info(f"Audio saved to {file_path}")
-
+            return file_path
     except Exception as e:
-        logging.error(f"An error occurred: {e}")
-
-audio_filepath="generated/input_voice_test.mp3"
-record_audio(file_path=audio_filepath)
+            logging.error(f"An error occurred: {e}")
+            return None
+#udio_filepath="generated/input_voice_test.mp3"
+#record_audio(file_path=audio_filepath)
 #transcribing voice recorded to text
 import os
 from groq import Groq
 from dotenv import load_dotenv
 load_dotenv()
 Groq_api_key=os.getenv("GROQ_API_KEY")
-
 stt_model="whisper-large-v3"
-audio_file=open(audio_filepath, "rb")
-client=Groq()
-transcription=client.audio.transcriptions.create(
-        model=stt_model,
-        file=audio_file,
-        language="en"
-    )
-print(transcription.text)
+def transcribe(audio_filepath,stt_model):
+    try:
+        with open(audio_filepath,"rb") as audio_file:
+            client=Groq()
+            transcription=client.audio.transcriptions.create(
+                    model=stt_model,
+                    file=audio_file,
+                    language="en",
+                )
+        return transcription.text
+    except Exception as e:
+         print(f"Error in transcribe(): {e}")
+         return f"[Error]: Speech-to-text failed: {e}"
+        
